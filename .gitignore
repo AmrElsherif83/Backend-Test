@@ -37,3 +37,4 @@ TestResults/
 coverage.opencover.xml
 #/PaychoicePGMS.Worker.EventBus/appsettings.json
 /.vscode
+/Backend-Test/API/Backend-Test.API/Data/app.db
