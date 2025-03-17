@@ -1,6 +1,6 @@
 # 🚀 Backend Test API
 
-![GitHub](https://img.shields.io/github/license/your-repo/backend-test-api)
+![GitHub](https://img.shields.io/github/license/AmrElsherif83/Backend-Test)
 ![GitHub last commit](https://img.shields.io/github/last-commit/AmrElsherif83/Backend-Test)
 
 ## 📌 Overview
