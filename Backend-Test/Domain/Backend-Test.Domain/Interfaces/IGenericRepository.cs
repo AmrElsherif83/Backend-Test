@@ -12,10 +12,11 @@ namespace Backend_Test.Domain.Interfaces
 {
     public interface IGenericRepository<T> where T : BaseEntity
     {
+        Task<bool> ExistsAsync(object id);
         Task InsertAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
-        Task<T> GetByIdAsync(object id);
+        Task<T> GetByIdAsync(Guid id);
         Task<T> FirstOrDefaultAsync(IPredicate predicate, IList<ISort> sort = null);
 
         Task<IEnumerable<T>> GetAllAsync(

@@ -1,0 +1,8 @@
+﻿CREATE TABLE IF NOT EXISTS Driver
+(
+    Id TEXT PRIMARY KEY NOT NULL,
+    FirstName TEXT NOT NULL,
+    LastName TEXT NOT NULL,
+    Email TEXT NOT NULL UNIQUE,
+    PhoneNumber TEXT NOT NULL
+);

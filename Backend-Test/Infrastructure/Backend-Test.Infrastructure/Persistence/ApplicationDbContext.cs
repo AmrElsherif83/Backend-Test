@@ -8,16 +8,18 @@ using System.Threading.Tasks;
 
 namespace Backend_Test.Infrastructure.Persistence
 {
-    public class ApplicationDbContext
+    public class ApplicationDbContext : IDisposable
     {
-        private readonly IDbConnection _connection;
+        public IDbConnection Connection { get; }
 
         public ApplicationDbContext(string connectionString)
         {
-            _connection = new SqliteConnection(connectionString);
+            Connection = new SqliteConnection(connectionString);
+            Connection.Open();
         }
 
-        public IDbConnection Connection => _connection;
+      
+        public void Dispose() => Connection.Dispose();
     }
 
 }

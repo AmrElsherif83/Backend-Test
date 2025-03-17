@@ -21,12 +21,41 @@ namespace Backend_Test.Infrastructure.Persistence
             _connection = connection;
             _transaction = transaction;
         }
+        public async Task<bool> ExistsAsync(object id)
+        {
+            var tableName = typeof(T).Name;
+            var sql = $"SELECT COUNT(1) FROM {tableName} WHERE Id = @Id";
 
+            var count = await _connection.ExecuteScalarAsync<int>(sql, new { Id = id });
+            return count > 0;
+        }
         public async Task InsertAsync(T entity)
             => await _connection.InsertAsync(entity);
 
         public async Task UpdateAsync(T entity)
-            => await _connection.UpdateAsync(entity);
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            var properties = typeof(T).GetProperties();
+            var tableName = typeof(T).Name;
+
+            var updateFields = string.Join(", ", properties
+                .Where(p => p.Name != "Id") // ✅ Exclude Id from update statement
+                .Select(p => $"{p.Name} = @{p.Name}"));
+
+            var sql = $"UPDATE {tableName} SET {updateFields} WHERE Id = @Id";
+
+            var parameters = new DynamicParameters();
+            foreach (var property in properties)
+            {
+                parameters.Add($"@{property.Name}", property.GetValue(entity));
+            }
+            var success = await _connection.ExecuteAsync(sql, parameters);
+            if (success == 0)
+                throw new InvalidOperationException("Update failed. Ensure all required parameters are set.");
+
+        }
 
         public async Task DeleteAsync(T entity)
             => await _connection.DeleteAsync(entity);
@@ -36,8 +65,29 @@ namespace Backend_Test.Infrastructure.Persistence
 
             return result.FirstOrDefault();
         }
-        public async Task<T> GetByIdAsync(object id)
-            => await _connection.GetAsync<T>(id);
+        public async Task<T> GetByIdAsync(Guid id)
+        {
+
+
+            var predicate = Predicates.Field<T>(p => p.Id, Operator.Eq, id); // Ensure proper filtering
+            var result = await _connection.GetListAsync<T>(predicate, transaction: _transaction);
+
+            var list = result.ToList();
+
+            if (list.Count == 0)
+            {
+              
+                return null;
+            }
+
+            if (list.Count > 1)
+            {
+              
+                throw new InvalidOperationException($"Multiple records found for {typeof(T).Name} with Id={id}");
+            }
+
+            return list.SingleOrDefault();
+        }
 
         public async Task<long> CountAsync(IPredicate predicate = null)
             => await _connection.CountAsync<T>(predicate);
